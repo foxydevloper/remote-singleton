@@ -7,9 +7,9 @@ The process which runs singleton.start() will be the process that handles all th
 A module must be created which will serve as a gateway between the singleton's process and the processes (or even other machines) which desire to run the functions on the other process. Running singleton.start() should only be done on a single process.
 ### my_singleton.py
 ```py
-from remote_singleton import RpycSingleton
+from remote_singleton import ExampleSingleton
 
-singleton = RpycSingleton()
+singleton = ExampleSingleton()
 
 @singleton.run_on
 def run_on_singleton(ran_file):
