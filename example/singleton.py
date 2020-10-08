@@ -10,6 +10,7 @@ singleton = RpycSingleton(rpyc_server_config={
 @singleton.run_on
 def run_on_singleton(ran_file):
     print(f"This function was ran on {__file__} by {ran_file}")
+    return f"Hello {ran_file} from {__file__}"
 
 
 if __name__ == "__main__":

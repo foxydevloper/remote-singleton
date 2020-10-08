@@ -46,7 +46,7 @@ class PickleSerializer(BaseSerializer):
 
     @staticmethod
     def server_wrapper(func):
-        def wrapped(self, *args, **kwargs):  # We include self since we are adding the function to BackendService, and we don't need self.
+        def wrapped(*args, **kwargs):
             pickled_args = map(lambda arg: pickle.loads(arg), args)
             pickled_kwargs = {k: pickle.loads(v) for k, v in kwargs.items()}
             try:
@@ -77,17 +77,17 @@ class RpycSingleton(BaseSingleton):
 
     def run_on(self, func):
         """
-        This wrapper will make the specified function run on the singleton.
+        This decorator will make the specified function run on the singleton.
         It will overwrite the function given with a new function that remotely calls the function through rpyc.
-
-        I can't even tell if this is a botch. This is literally just beautiful.
-        I don't have to write two functions for every single remotely called function I want to add.
         """
 
         if self.serializer:
-            wrapped_func = self.serializer.server_wrapper(func)
+            func = self.serializer.server_wrapper(func)
 
-        setattr(self.rpyc_service, f'exposed_{func.__name__}', wrapped_func or func)  # Add the function to the BackendService
+        def wrapped_func(self, *args, **kwargs):  # rpyc service includes an unneccessary self parameter we want to remove
+            return func(*args, **kwargs)
+
+        setattr(self.rpyc_service, f'exposed_{func.__name__}', wrapped_func)  # Add the function to the BackendService
 
         def client_func(*args, **kwargs):  # Create a client sided version that just remotely calls through rpyc
             with self.connect() as singleton_conn:
