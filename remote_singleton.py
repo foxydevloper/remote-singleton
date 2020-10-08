@@ -1,7 +1,7 @@
 
 import pickle
 import rpyc
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 import os
 
@@ -58,7 +58,7 @@ class PickleSerializer(BaseSerializer):
 
 @dataclass
 class RpycSingleton(BaseSingleton):
-    rpyc_server_config: dict = field(default_factory=lambda: {'socket_path': "manager.sock"})  # Singleton will communicate over a unix socket by default
+    rpyc_server_config: dict
     serializer: Optional[BaseSerializer] = PickleSerializer
 
     def __post_init__(self):
@@ -105,7 +105,7 @@ class RpycSingleton(BaseSingleton):
         """
         if 'socket_path' in self.rpyc_server_config:
             try:
-                os.remove(self.rpyc_server_config['socket_path'])
+                os.remove(self.rpyc_server_config['socket_path'])  # This is a botch, sometimes rpyc messes up when path already exists
             except OSError:
                 pass
         conn = rpyc.utils.server.ThreadedServer(self.rpyc_service, **self.rpyc_server_config)
