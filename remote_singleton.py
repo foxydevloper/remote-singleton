@@ -9,7 +9,6 @@ import os
 # TODO: Add support for swapping out transport method, for example ability to use socketio or something
 # TODO: Add support for different serializers
 # TODO: Asyncio support for running the functions?
-# TODO: Ability to seperate the call functions from the singleton code, so you could use a singleton on seperate machines without having to give the client machines the singleton function's code
 
 
 class BaseSerializer:
