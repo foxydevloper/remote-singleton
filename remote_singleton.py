@@ -5,17 +5,11 @@ from dataclasses import dataclass, field
 from typing import Optional
 import os
 
-"""
-This module allows the ability to make it so specified functions only run on a single machine.
-Using the run_on_singleton operator on a function will specify it should run on the singleton.
-Anything that runs the function will end up running it on the singleton.
-The singleton can be initiated by using start()
-"""
-
 
 # TODO: Add support for swapping out transport method, for example ability to use socketio or something
 # TODO: Add support for different serializers
-# TODO: Open source
+# TODO: Asyncio support for running the functions?
+# TODO: Ability to seperate the call functions from the singleton code, so you could use a singleton on seperate machines without having to give the client machines the singleton function's code
 
 
 class BaseSerializer:
