@@ -2,7 +2,7 @@
 import pickle
 import rpyc
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Type
 import os
 
 
@@ -23,8 +23,6 @@ class BaseSerializer:
 
 # To be fair I don't know how to make an interface in python
 class BaseSingleton:
-    serializer: BaseSerializer
-
     def run_on(self, func):
         raise NotImplementedError
 
@@ -59,7 +57,7 @@ class PickleSerializer(BaseSerializer):
 @dataclass
 class RpycSingleton(BaseSingleton):
     rpyc_server_config: dict
-    serializer: Optional[BaseSerializer] = PickleSerializer
+    serializer: Optional[Type[BaseSerializer]] = PickleSerializer
 
     def __post_init__(self):
         class SingletonService(rpyc.Service):  # Create a new blank rpyc service
