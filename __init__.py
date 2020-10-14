@@ -87,19 +87,19 @@ class RpycSingleton(BaseSingleton):
         if self.serializer:
             func = self.serializer.server_wrapper(func)
 
-        def wrapped_func(self, *args, **kwargs):  # HACK: rpyc service includes an unneccessary self parameter we want to remove
+        def server_func(self, *args, **kwargs):  # HACK: rpyc service includes an unneccessary self parameter we want to remove
             return func(*args, **kwargs)
 
-        setattr(self.rpyc_service, f'exposed_{func.__name__}', wrapped_func)  # Add the function to the BackendService
+        setattr(self.rpyc_service, f'exposed_{func.__name__}', server_func)  # Add the function to the BackendService
 
         def client_func(*args, **kwargs):  # Create a client sided version that just remotely calls through rpyc
             with self.connect() as singleton_conn:
                 return getattr(singleton_conn.root, func.__name__)(*args, **kwargs)
 
         if self.serializer:
-            wrapped_client_func = self.serializer.client_wrapper(client_func)
+            client_func = self.serializer.client_wrapper(client_func)
 
-        return wrapped_client_func or client_func
+        return client_func
 
     def start(self):
         """
