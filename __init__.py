@@ -83,18 +83,20 @@ class RpycSingleton(BaseSingleton):
         This decorator will make the specified function run on the singleton.
         It will overwrite the function given with a new function that remotely calls the function through rpyc.
         """
+        func_name = func.__name__
 
+        server_func = func
         if self.serializer:
-            func = self.serializer.server_wrapper(func)
+            server_func = self.serializer.server_wrapper(server_func)
 
         def server_func(self, *args, **kwargs):  # HACK: rpyc service includes an unneccessary self parameter we want to remove
-            return func(*args, **kwargs)
+            return server_func(*args, **kwargs)
 
-        setattr(self.rpyc_service, f'exposed_{func.__name__}', server_func)  # Add the function to the BackendService
+        setattr(self.rpyc_service, f'exposed_{func_name}', server_func)  # Add the function to the BackendService
 
         def client_func(*args, **kwargs):  # Create a client sided version that just remotely calls through rpyc
             with self.connect() as singleton_conn:
-                return getattr(singleton_conn.root, func.__name__)(*args, **kwargs)
+                return getattr(singleton_conn.root, func_name)(*args, **kwargs)
 
         if self.serializer:
             client_func = self.serializer.client_wrapper(client_func)
