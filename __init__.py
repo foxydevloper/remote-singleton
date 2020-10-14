@@ -2,13 +2,16 @@
 import pickle
 import rpyc
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Type
 import os
 
 
 # TODO: Add support for swapping out transport method, for example ability to use socketio or something
 # TODO: Add support for different serializers
 # TODO: Asyncio support for running the functions?
+# TODO: Ability to disable serialization when coming from client,
+#       or having a different serializer for the client
+#       for security
 
 
 class BaseSerializer:
@@ -23,8 +26,6 @@ class BaseSerializer:
 
 # To be fair I don't know how to make an interface in python
 class BaseSingleton:
-    serializer: BaseSerializer
-
     def run_on(self, func):
         raise NotImplementedError
 
@@ -59,7 +60,7 @@ class PickleSerializer(BaseSerializer):
 @dataclass
 class RpycSingleton(BaseSingleton):
     rpyc_server_config: dict
-    serializer: Optional[BaseSerializer] = PickleSerializer
+    serializer: Optional[Type[BaseSerializer]] = PickleSerializer
 
     def __post_init__(self):
         class SingletonService(rpyc.Service):  # Create a new blank rpyc service
