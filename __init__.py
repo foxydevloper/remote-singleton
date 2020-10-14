@@ -68,12 +68,15 @@ class RpycSingleton(BaseSingleton):
 
     def connect(self):
         "Connect to the singleton's rpyc service"
-        if 'socket_path' in self.rpyc_server_config:
-            socket_path = self.rpyc_server_config['socket_path']
-            return rpyc.utils.factory.unix_connect(socket_path)
-        else:
-            host, port = self.rpyc_server_config['hostname'], self.rpyc_server_config['port']
-            return rpyc.utils.factory.connect(host, port)
+        try:
+            if 'socket_path' in self.rpyc_server_config:
+                socket_path = self.rpyc_server_config['socket_path']
+                return rpyc.utils.factory.unix_connect(socket_path)
+            else:
+                host, port = self.rpyc_server_config['hostname'], self.rpyc_server_config['port']
+                return rpyc.utils.factory.connect(host, port)
+        except (FileNotFoundError):  # TODO: Add support for host-port failures aswell
+            raise Exception("Singleton is not running")  # TODO: Be more descriptive?
 
     def run_on(self, func):
         """
@@ -84,7 +87,7 @@ class RpycSingleton(BaseSingleton):
         if self.serializer:
             func = self.serializer.server_wrapper(func)
 
-        def wrapped_func(self, *args, **kwargs):  # rpyc service includes an unneccessary self parameter we want to remove
+        def wrapped_func(self, *args, **kwargs):  # HACK: rpyc service includes an unneccessary self parameter we want to remove
             return func(*args, **kwargs)
 
         setattr(self.rpyc_service, f'exposed_{func.__name__}', wrapped_func)  # Add the function to the BackendService
