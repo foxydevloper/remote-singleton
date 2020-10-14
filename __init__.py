@@ -86,12 +86,11 @@ class RpycSingleton(BaseSingleton):
         """
         func_name = func.__name__
 
-        server_func = func
         if self.serializer:
-            server_func = self.serializer.server_wrapper(server_func)
+            func = self.serializer.server_wrapper(func)
 
         def server_func(self, *args, **kwargs):  # HACK: rpyc service includes an unneccessary self parameter we want to remove
-            return server_func(*args, **kwargs)
+            return func(*args, **kwargs)
 
         setattr(self.rpyc_service, f'exposed_{func_name}', server_func)  # Add the function to the BackendService
 
