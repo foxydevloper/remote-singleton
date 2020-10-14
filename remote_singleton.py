@@ -9,6 +9,9 @@ import os
 # TODO: Add support for swapping out transport method, for example ability to use socketio or something
 # TODO: Add support for different serializers
 # TODO: Asyncio support for running the functions?
+# TODO: Ability to disable serialization when coming from client,
+#       or having a different serializer for the client
+#       for security
 
 
 class BaseSerializer:
